@@ -16,12 +16,15 @@
             --text-color: #ffffff;
             --accent-color: #00d4ff;
             --accent-glow: rgba(0, 212, 255, 0.6);
+            --accent-glow-strong: rgba(0, 212, 255, 0.9);
             --shadow-color: rgba(0, 212, 255, 0.3);
             --control-bg: rgba(20, 20, 30, 0.8);
             --control-hover: rgba(40, 40, 60, 0.9);
             --wood-color: #8B4513;
             --wood-light: #A0522D;
             --wood-dark: #654321;
+            --digit-inactive: rgba(0, 212, 255, 0.1);
+            --digit-active: #00d4ff;
         }
 
         .light-theme {
@@ -29,9 +32,12 @@
             --text-color: #1a1a1a;
             --accent-color: #0066cc;
             --accent-glow: rgba(0, 102, 204, 0.4);
+            --accent-glow-strong: rgba(0, 102, 204, 0.7);
             --shadow-color: rgba(0, 102, 204, 0.2);
             --control-bg: rgba(255, 255, 255, 0.9);
             --control-hover: rgba(240, 240, 240, 0.95);
+            --digit-inactive: rgba(0, 102, 204, 0.15);
+            --digit-active: #0066cc;
         }
 
         body {
@@ -79,72 +85,132 @@
             filter: blur(10px);
         }
 
-        /* 数字显示模式样式 */
+        /* 数字显示模式样式 - 七段数码管风格 */
         .digital-clock {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
         }
 
         .digit-container {
             position: relative;
-            width: 120px;
-            height: 200px;
+            width: 100px;
+            height: 180px;
             perspective: 1000px;
         }
 
-        .digit {
+        /* 七段数码管 SVG 样式 */
+        .segment-display {
+            width: 100%;
+            height: 100%;
+        }
+
+        .segment {
+            fill: var(--digit-inactive);
+            stroke: none;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 2px transparent);
+        }
+
+        .segment.active {
+            fill: var(--digit-active);
+            filter: 
+                drop-shadow(0 0 5px var(--accent-glow))
+                drop-shadow(0 0 10px var(--accent-glow))
+                drop-shadow(0 0 20px var(--accent-glow-strong));
+        }
+
+        /* 数码管背景效果 */
+        .digit-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(145deg, #1a1a2e 0%, #0f0f1a 100%);
+            border-radius: 15px;
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.5),
+                inset 0 -2px 10px rgba(0, 212, 255, 0.05),
+                0 0 30px var(--shadow-color);
+            z-index: -1;
+        }
+
+        .light-theme .digit-container::before {
+            background: linear-gradient(145deg, #e8e8e8 0%, #d0d0d0 100%);
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.1),
+                inset 0 -2px 10px rgba(0, 102, 204, 0.05),
+                0 0 20px var(--shadow-color);
+        }
+
+        /* 分隔符样式 */
+        .separator-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding: 0 10px;
+        }
+
+        .separator-dot {
+            width: 16px;
+            height: 16px;
+            background: var(--digit-active);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 10px var(--accent-glow),
+                0 0 20px var(--accent-glow),
+                0 0 40px var(--accent-glow-strong);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.4;
+                transform: scale(0.9);
+            }
+        }
+
+        /* 数字动画 */
+        .digit-wrapper {
             position: absolute;
             width: 100%;
             height: 100%;
-            font-size: 180px;
-            font-weight: 300;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--accent-color);
-            text-shadow: 
-                0 0 10px var(--accent-glow),
-                0 0 20px var(--accent-glow),
-                0 0 40px var(--accent-glow),
-                0 0 80px var(--accent-color);
-            font-family: 'Courier New', monospace;
-            letter-spacing: -10px;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .digit.entering {
-            animation: liquidEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        .digit-wrapper.entering {
+            animation: liquidEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .digit.exiting {
-            animation: liquidExit 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        .digit-wrapper.exiting {
+            animation: liquidExit 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes liquidEnter {
             0% {
-                transform: scaleX(0) scaleY(0.5);
+                transform: scaleX(0) scaleY(0.6);
                 opacity: 0;
-                filter: blur(20px);
             }
             30% {
-                transform: scaleX(1.3) scaleY(0.7);
+                transform: scaleX(1.25) scaleY(0.75);
                 opacity: 0.8;
-                filter: blur(10px);
             }
             60% {
-                transform: scaleX(0.9) scaleY(1.1);
+                transform: scaleX(0.92) scaleY(1.08);
                 opacity: 1;
-                filter: blur(5px);
             }
             80% {
-                transform: scaleX(1.05) scaleY(0.95);
-                filter: blur(2px);
+                transform: scaleX(1.03) scaleY(0.97);
             }
             100% {
                 transform: scaleX(1) scaleY(1);
                 opacity: 1;
-                filter: blur(0);
             }
         }
 
@@ -152,37 +218,19 @@
             0% {
                 transform: scaleX(1) scaleY(1);
                 opacity: 1;
-                filter: blur(0);
             }
             20% {
                 transform: scaleX(1.1) scaleY(0.9);
                 opacity: 0.8;
-                filter: blur(3px);
             }
             50% {
-                transform: scaleX(0.8) scaleY(1.2);
-                opacity: 0.5;
-                filter: blur(8px);
+                transform: scaleX(0.75) scaleY(1.25);
+                opacity: 0.4;
             }
             100% {
-                transform: scaleX(0) scaleY(0.3);
+                transform: scaleX(0) scaleY(0.4);
                 opacity: 0;
-                filter: blur(20px);
             }
-        }
-
-        .separator {
-            font-size: 120px;
-            color: var(--accent-color);
-            text-shadow: 
-                0 0 10px var(--accent-glow),
-                0 0 20px var(--accent-glow);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
         }
 
         /* 极简扫秒模式样式 */
@@ -283,7 +331,7 @@
             box-shadow: 0 0 15px var(--accent-glow);
         }
 
-        /* 机械摆钟模式样式 */
+        /* 机械摆钟模式样式 - 增强木质纹理 */
         .pendulum-clock {
             position: relative;
             display: flex;
@@ -296,11 +344,39 @@
             width: 350px;
             height: 350px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--wood-light) 0%, var(--wood-color) 50%, var(--wood-dark) 100%);
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 69, 19, 0.1) 2px,
+                    rgba(139, 69, 19, 0.1) 4px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(101, 67, 33, 0.08) 3px,
+                    rgba(101, 67, 33, 0.08) 6px
+                ),
+                linear-gradient(135deg, 
+                    #D2691E 0%, 
+                    #8B4513 15%, 
+                    #A0522D 30%, 
+                    #8B4513 45%, 
+                    #CD853F 60%, 
+                    #8B4513 75%, 
+                    #A0522D 90%, 
+                    #654321 100%
+                );
             box-shadow: 
-                0 10px 40px rgba(0, 0, 0, 0.5),
-                inset 0 2px 10px rgba(255, 255, 255, 0.2);
-            border: 8px solid var(--wood-dark);
+                0 15px 50px rgba(0, 0, 0, 0.6),
+                inset 0 3px 15px rgba(255, 255, 255, 0.15),
+                inset 0 -3px 15px rgba(0, 0, 0, 0.3),
+                0 0 0 3px #5D3A1A,
+                0 0 0 6px #8B4513,
+                0 0 0 9px #5D3A1A;
+            border: none;
         }
 
         .pendulum-analog::before {
@@ -309,22 +385,29 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 16px;
-            height: 16px;
-            background: #d4af37;
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle at 30% 30%, #FFD700, #DAA520, #B8860B);
             border-radius: 50%;
             z-index: 10;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            box-shadow: 
+                0 0 15px rgba(218, 165, 32, 0.6),
+                inset 0 2px 5px rgba(255, 255, 255, 0.5);
         }
 
         .pendulum-clock-face {
             position: absolute;
-            width: calc(100% - 30px);
-            height: calc(100% - 30px);
-            background: radial-gradient(circle, #f5f0e6 0%, #e8e0d0 100%);
+            width: calc(100% - 40px);
+            height: calc(100% - 40px);
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle, #FAF5EB 0%, #F0E8D8 50%, #E8DFC8 100%);
             border-radius: 50%;
-            top: 15px;
-            left: 15px;
+            top: 20px;
+            left: 20px;
+            box-shadow: 
+                inset 0 2px 10px rgba(0, 0, 0, 0.1),
+                inset 0 -2px 10px rgba(139, 69, 19, 0.2);
         }
 
         .pendulum-hour-mark {
@@ -332,23 +415,24 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            font-size: 20px;
-            font-weight: 400;
-            color: #333;
-            font-family: 'Georgia', serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #4A3728;
+            font-family: 'Georgia', 'Times New Roman', serif;
             transform-origin: center center;
         }
 
         .pendulum-hour-mark span {
             position: absolute;
-            top: 15px;
+            top: 18px;
             left: 50%;
             transform: translateX(-50%);
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
         }
 
         .pendulum-hour-mark.roman {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
         }
 
         .pendulum-hour-mark.roman span {
@@ -364,35 +448,39 @@
         }
 
         .pendulum-hour-hand {
-            width: 7px;
-            height: 80px;
-            background: linear-gradient(to top, #8B4513, #654321);
-            margin-left: -3.5px;
+            width: 8px;
+            height: 75px;
+            background: linear-gradient(to top, #5D3A1A, #8B4513, #A0522D);
+            margin-left: -4px;
             z-index: 3;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            border-radius: 4px 4px 2px 2px;
         }
 
         .pendulum-minute-hand {
-            width: 4px;
-            height: 110px;
-            background: linear-gradient(to top, #654321, #3d2817);
-            margin-left: -2px;
+            width: 5px;
+            height: 105px;
+            background: linear-gradient(to top, #4A3728, #654321, #8B4513);
+            margin-left: -2.5px;
             z-index: 4;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .pendulum-second-hand {
             width: 2px;
-            height: 130px;
-            background: #d4af37;
+            height: 125px;
+            background: linear-gradient(to top, #B8860B, #DAA520, #FFD700);
             margin-left: -1px;
             z-index: 5;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        /* 钟摆样式 */
+        /* 钟摆样式 - 修复层级问题 */
         .pendulum-container {
             position: relative;
             width: 100px;
             height: 250px;
-            margin-top: -20px;
+            margin-top: -15px;
         }
 
         .pendulum {
@@ -401,36 +489,71 @@
             left: 50%;
             width: 4px;
             height: 200px;
-            background: linear-gradient(to bottom, #d4af37, #8B4513);
+            background: linear-gradient(to bottom, 
+                #B8860B 0%, 
+                #DAA520 20%, 
+                #CD853F 50%, 
+                #8B4513 80%, 
+                #654321 100%
+            );
             transform-origin: top center;
             margin-left: -2px;
-            z-index: 1;
+            z-index: 5;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
         }
 
         .pendulum-bob {
             position: absolute;
-            bottom: -30px;
+            bottom: -35px;
             left: 50%;
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle at 30% 30%, #ffd700, #d4af37, #8B4513);
+            width: 70px;
+            height: 70px;
+            background: 
+                radial-gradient(circle at 35% 30%, #FFF8DC 0%, #FFD700 15%, #DAA520 40%, #B8860B 70%, #8B6914 100%);
             border-radius: 50%;
             transform: translateX(-50%);
             box-shadow: 
-                0 5px 20px rgba(0, 0, 0, 0.4),
-                inset 0 -5px 15px rgba(0, 0, 0, 0.3);
+                0 8px 25px rgba(0, 0, 0, 0.5),
+                inset 0 -5px 15px rgba(0, 0, 0, 0.3),
+                inset 0 5px 15px rgba(255, 255, 255, 0.3);
         }
 
         .pendulum-support {
             position: absolute;
-            top: -10px;
+            top: -12px;
             left: 50%;
-            width: 20px;
-            height: 20px;
-            background: #d4af37;
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle at 30% 30%, #FFD700, #DAA520, #B8860B);
             border-radius: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 3px 10px rgba(0, 0, 0, 0.4),
+                inset 0 2px 5px rgba(255, 255, 255, 0.4);
+            z-index: 1;
+        }
+
+        /* 木质装饰环 */
+        .wood-ring {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 50%;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 5px,
+                    rgba(139, 69, 19, 0.15) 5px,
+                    rgba(139, 69, 19, 0.15) 10px
+                ),
+                linear-gradient(135deg, #A0522D, #8B4513, #654321, #8B4513, #A0522D);
+            z-index: -1;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                inset 0 2px 5px rgba(255, 255, 255, 0.1);
         }
 
         /* 控制面板样式 */
@@ -566,16 +689,17 @@
         /* 响应式设计 */
         @media (max-width: 768px) {
             .digit-container {
-                width: 80px;
-                height: 140px;
+                width: 70px;
+                height: 130px;
             }
 
-            .digit {
-                font-size: 120px;
+            .separator-dot {
+                width: 12px;
+                height: 12px;
             }
 
-            .separator {
-                font-size: 80px;
+            .separator-container {
+                gap: 30px;
             }
 
             .analog-clock {
@@ -621,24 +745,102 @@
         <div class="clock-mode active" id="digitalMode">
             <div class="digital-clock">
                 <div class="digit-container" id="hour1Container">
-                    <div class="digit" id="hour1">0</div>
+                    <div class="digit-wrapper" id="hour1Wrapper">
+                        <svg class="segment-display" viewBox="0 0 100 180">
+                            <g id="hour1">
+                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
                 <div class="digit-container" id="hour2Container">
-                    <div class="digit" id="hour2">0</div>
+                    <div class="digit-wrapper" id="hour2Wrapper">
+                        <svg class="segment-display" viewBox="0 0 100 180">
+                            <g id="hour2">
+                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
-                <div class="separator">:</div>
+                <div class="separator-container">
+                    <div class="separator-dot"></div>
+                    <div class="separator-dot"></div>
+                </div>
                 <div class="digit-container" id="minute1Container">
-                    <div class="digit" id="minute1">0</div>
+                    <div class="digit-wrapper" id="minute1Wrapper">
+                        <svg class="segment-display" viewBox="0 0 100 180">
+                            <g id="minute1">
+                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
                 <div class="digit-container" id="minute2Container">
-                    <div class="digit" id="minute2">0</div>
+                    <div class="digit-wrapper" id="minute2Wrapper">
+                        <svg class="segment-display" viewBox="0 0 100 180">
+                            <g id="minute2">
+                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
-                <div class="separator">:</div>
+                <div class="separator-container">
+                    <div class="separator-dot"></div>
+                    <div class="separator-dot"></div>
+                </div>
                 <div class="digit-container" id="second1Container">
-                    <div class="digit" id="second1">0</div>
+                    <div class="digit-wrapper" id="second1Wrapper">
+                        <svg class="segment-display" viewBox="0 0 100 180">
+                            <g id="second1">
+                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
                 <div class="digit-container" id="second2Container">
-                    <div class="digit" id="second2">0</div>
+                    <div class="digit-wrapper" id="second2Wrapper">
+                        <svg class="segment-display" viewBox="0 0 100 180">
+                            <g id="second2">
+                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                            </g>
+                        </svg>
+                    </div>
                 </div>
             </div>
             <div class="date-display" id="digitalDate"></div>
@@ -659,6 +861,7 @@
         <div class="clock-mode" id="pendulumMode">
             <div class="pendulum-clock">
                 <div class="pendulum-analog">
+                    <div class="wood-ring"></div>
                     <div class="pendulum-clock-face" id="pendulumFace"></div>
                     <div class="pendulum-clock-hand pendulum-hour-hand" id="pendulumHour"></div>
                     <div class="pendulum-clock-hand pendulum-minute-hand" id="pendulumMinute"></div>
@@ -683,6 +886,20 @@
     </div>
 
     <script>
+        // 七段数码管数字映射
+        const segmentMap = {
+            '0': ['a', 'b', 'c', 'd', 'e', 'f'],
+            '1': ['b', 'c'],
+            '2': ['a', 'b', 'g', 'e', 'd'],
+            '3': ['a', 'b', 'g', 'c', 'd'],
+            '4': ['f', 'g', 'b', 'c'],
+            '5': ['a', 'f', 'g', 'c', 'd'],
+            '6': ['a', 'f', 'g', 'c', 'd', 'e'],
+            '7': ['a', 'b', 'c'],
+            '8': ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+            '9': ['a', 'b', 'c', 'd', 'f', 'g']
+        };
+
         // 状态管理
         let currentMode = 'digital';
         let isDarkTheme = true;
@@ -713,18 +930,51 @@
             s2: document.getElementById('second2Container')
         };
 
+        const wrappers = {
+            h1: document.getElementById('hour1Wrapper'),
+            h2: document.getElementById('hour2Wrapper'),
+            m1: document.getElementById('minute1Wrapper'),
+            m2: document.getElementById('minute2Wrapper'),
+            s1: document.getElementById('second1Wrapper'),
+            s2: document.getElementById('second2Wrapper')
+        };
+
         const themeBtn = document.getElementById('themeBtn');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const controlPanel = document.getElementById('controlPanel');
         const autoIndicator = document.getElementById('autoIndicator');
         const pendulumEl = document.getElementById('pendulum');
 
+        // 设置七段数码管显示数字
+        function setDigit(digitId, value) {
+            const digitGroup = document.getElementById(digitId);
+            if (!digitGroup) return;
+
+            const segments = digitGroup.querySelectorAll('.segment');
+            const activeSegments = segmentMap[value] || [];
+
+            segments.forEach(segment => {
+                const segmentClass = segment.classList.contains('a') ? 'a' :
+                                     segment.classList.contains('b') ? 'b' :
+                                     segment.classList.contains('c') ? 'c' :
+                                     segment.classList.contains('d') ? 'd' :
+                                     segment.classList.contains('e') ? 'e' :
+                                     segment.classList.contains('f') ? 'f' : 'g';
+                
+                if (activeSegments.includes(segmentClass)) {
+                    segment.classList.add('active');
+                } else {
+                    segment.classList.remove('active');
+                }
+            });
+        }
+
         // 初始化表盘刻度
         function initClockFaces() {
             const romanNumerals = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
             const arabicNumerals = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
 
-            // 极简扫秒模式表盘 - 使用 CSS transform 旋转
+            // 极简扫秒模式表盘
             const analogFace = document.getElementById('analogFace');
             for (let i = 0; i < 12; i++) {
                 const angle = i * 30;
@@ -764,34 +1014,42 @@
             return now.toLocaleDateString('zh-CN', options);
         }
 
-        // 更新单个数字
-        function updateDigit(container, key, newValue) {
+        // 更新单个数字（七段数码管）
+        function updateDigit(key, newValue) {
             if (newValue === lastTime[key]) return;
 
-            // 获取当前数字元素
-            const currentDigit = container.querySelector('.digit:not(.exiting)');
-            
-            if (currentDigit) {
-                // 创建新数字元素
-                const newDigit = document.createElement('div');
-                newDigit.className = 'digit entering';
-                newDigit.textContent = newValue;
-                newDigit.id = currentDigit.id;
+            const wrapper = wrappers[key];
+            if (!wrapper) return;
 
-                // 旧数字退出动画
-                currentDigit.classList.remove('entering');
-                currentDigit.classList.add('exiting');
+            // 创建新的 wrapper
+            const newWrapper = document.createElement('div');
+            newWrapper.className = 'digit-wrapper entering';
+            newWrapper.id = wrapper.id;
 
-                // 添加新数字
-                container.appendChild(newDigit);
+            // 复制 SVG 内容
+            const svgContent = wrapper.innerHTML;
+            newWrapper.innerHTML = svgContent;
 
-                // 移除旧数字
-                setTimeout(() => {
-                    if (currentDigit.parentNode) {
-                        currentDigit.parentNode.removeChild(currentDigit);
-                    }
-                }, 600);
-            }
+            // 旧 wrapper 退出动画
+            wrapper.classList.remove('entering');
+            wrapper.classList.add('exiting');
+
+            // 添加新 wrapper
+            wrapper.parentNode.appendChild(newWrapper);
+
+            // 更新新数字的显示
+            const digitId = wrapper.querySelector('g').id;
+            setDigit(digitId, newValue);
+
+            // 更新 wrappers 引用
+            wrappers[key] = newWrapper;
+
+            // 移除旧 wrapper
+            setTimeout(() => {
+                if (wrapper.parentNode) {
+                    wrapper.parentNode.removeChild(wrapper);
+                }
+            }, 500);
 
             lastTime[key] = newValue;
         }
@@ -803,12 +1061,30 @@
             const minutes = padZero(now.getMinutes());
             const seconds = padZero(now.getSeconds());
 
-            updateDigit(containers.h1, 'h1', hours[0]);
-            updateDigit(containers.h2, 'h2', hours[1]);
-            updateDigit(containers.m1, 'm1', minutes[0]);
-            updateDigit(containers.m2, 'm2', minutes[1]);
-            updateDigit(containers.s1, 's1', seconds[0]);
-            updateDigit(containers.s2, 's2', seconds[1]);
+            // 初始化时设置所有数字
+            if (lastTime.h1 === '0' && lastTime.h2 === '0') {
+                setDigit('hour1', hours[0]);
+                setDigit('hour2', hours[1]);
+                setDigit('minute1', minutes[0]);
+                setDigit('minute2', minutes[1]);
+                setDigit('second1', seconds[0]);
+                setDigit('second2', seconds[1]);
+                lastTime = {
+                    h1: hours[0],
+                    h2: hours[1],
+                    m1: minutes[0],
+                    m2: minutes[1],
+                    s1: seconds[0],
+                    s2: seconds[1]
+                };
+            } else {
+                updateDigit('h1', hours[0]);
+                updateDigit('h2', hours[1]);
+                updateDigit('m1', minutes[0]);
+                updateDigit('m2', minutes[1]);
+                updateDigit('s1', seconds[0]);
+                updateDigit('s2', seconds[1]);
+            }
 
             // 更新日期
             document.getElementById('digitalDate').textContent = getDateString();
@@ -854,13 +1130,10 @@
         function updatePendulum() {
             if (!pendulumEl) return;
             
-            // 物理摆动公式：角度随时间变化，两端慢，中间快
-            // 使用正弦函数模拟简谐运动
             const time = Date.now() / 1000;
-            const maxAngle = 30; // 最大摆动角度
-            const period = 2; // 摆动周期（秒）
+            const maxAngle = 25;
+            const period = 2;
             
-            // 简谐运动公式：θ = θ_max * sin(2πt / T)
             const angle = maxAngle * Math.sin(2 * Math.PI * time / period);
             
             pendulumEl.style.transform = `rotate(${angle}deg)`;
@@ -870,14 +1143,12 @@
         function switchMode(mode) {
             if (currentMode === mode) return;
 
-            // 隐藏当前模式
             modes[currentMode].classList.add('hiding');
             buttons[currentMode].classList.remove('active');
 
             setTimeout(() => {
                 modes[currentMode].classList.remove('active', 'hiding');
                 
-                // 显示新模式
                 modes[mode].classList.add('active');
                 buttons[mode].classList.add('active');
                 
@@ -911,8 +1182,6 @@
             const now = new Date();
             const hours = now.getHours();
             
-            // 白天：6:00 - 18:00 使用浅色主题
-            // 晚上：18:00 - 6:00 使用深色主题
             const shouldBeDark = hours < 6 || hours >= 18;
             
             if (shouldBeDark !== isDarkTheme) {
@@ -941,7 +1210,6 @@
             controlPanel.classList.remove('hidden');
             clearTimeout(controlPanelTimeout);
             
-            // 3秒后自动隐藏
             controlPanelTimeout = setTimeout(() => {
                 controlPanel.classList.add('hidden');
             }, 3000);
@@ -954,11 +1222,9 @@
         themeBtn.addEventListener('click', toggleTheme);
         fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-        // 鼠标移动显示控制面板
         document.addEventListener('mousemove', showControlPanel);
         document.addEventListener('touchstart', showControlPanel);
 
-        // 全屏变化监听
         document.addEventListener('fullscreenchange', () => {
             isFullscreen = !!document.fullscreenElement;
         });
@@ -981,10 +1247,8 @@
         applyTheme();
         showControlPanel();
         
-        // 启动动画循环
         requestAnimationFrame(animate);
 
-        // 每分钟检查一次主题
         setInterval(checkAutoTheme, 60000);
     </script>
 </body>
