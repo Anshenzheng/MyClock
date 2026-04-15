@@ -23,7 +23,7 @@
             --wood-color: #8B4513;
             --wood-light: #A0522D;
             --wood-dark: #654321;
-            --digit-inactive: rgba(0, 212, 255, 0.1);
+            --digit-inactive: #2a2a35;
             --digit-active: #00d4ff;
         }
 
@@ -36,7 +36,7 @@
             --shadow-color: rgba(0, 102, 204, 0.2);
             --control-bg: rgba(255, 255, 255, 0.9);
             --control-hover: rgba(240, 240, 240, 0.95);
-            --digit-inactive: rgba(0, 102, 204, 0.15);
+            --digit-inactive: #c0c0c8;
             --digit-active: #0066cc;
         }
 
@@ -109,7 +109,6 @@
             fill: var(--digit-inactive);
             stroke: none;
             transition: all 0.3s ease;
-            filter: drop-shadow(0 0 2px transparent);
         }
 
         .segment.active {
@@ -377,6 +376,7 @@
                 0 0 0 6px #8B4513,
                 0 0 0 9px #5D3A1A;
             border: none;
+            z-index: 20;
         }
 
         .pendulum-analog::before {
@@ -481,6 +481,7 @@
             width: 100px;
             height: 250px;
             margin-top: -15px;
+            z-index: 5;
         }
 
         .pendulum {
@@ -498,7 +499,7 @@
             );
             transform-origin: top center;
             margin-left: -2px;
-            z-index: 5;
+            z-index: 10;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
         }
 
@@ -745,102 +746,90 @@
         <div class="clock-mode active" id="digitalMode">
             <div class="digital-clock">
                 <div class="digit-container" id="hour1Container">
-                    <div class="digit-wrapper" id="hour1Wrapper">
-                        <svg class="segment-display" viewBox="0 0 100 180">
-                            <g id="hour1">
-                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
-                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
-                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
-                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
-                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
-                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
-                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
-                            </g>
-                        </svg>
-                    </div>
+                    <svg class="segment-display" viewBox="0 0 100 180">
+                        <g id="hour1">
+                            <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                            <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                            <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                            <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                            <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                            <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                            <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                        </g>
+                    </svg>
                 </div>
                 <div class="digit-container" id="hour2Container">
-                    <div class="digit-wrapper" id="hour2Wrapper">
-                        <svg class="segment-display" viewBox="0 0 100 180">
-                            <g id="hour2">
-                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
-                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
-                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
-                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
-                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
-                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
-                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
-                            </g>
-                        </svg>
-                    </div>
+                    <svg class="segment-display" viewBox="0 0 100 180">
+                        <g id="hour2">
+                            <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                            <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                            <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                            <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                            <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                            <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                            <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                        </g>
+                    </svg>
                 </div>
                 <div class="separator-container">
                     <div class="separator-dot"></div>
                     <div class="separator-dot"></div>
                 </div>
                 <div class="digit-container" id="minute1Container">
-                    <div class="digit-wrapper" id="minute1Wrapper">
-                        <svg class="segment-display" viewBox="0 0 100 180">
-                            <g id="minute1">
-                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
-                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
-                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
-                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
-                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
-                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
-                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
-                            </g>
-                        </svg>
-                    </div>
+                    <svg class="segment-display" viewBox="0 0 100 180">
+                        <g id="minute1">
+                            <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                            <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                            <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                            <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                            <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                            <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                            <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                        </g>
+                    </svg>
                 </div>
                 <div class="digit-container" id="minute2Container">
-                    <div class="digit-wrapper" id="minute2Wrapper">
-                        <svg class="segment-display" viewBox="0 0 100 180">
-                            <g id="minute2">
-                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
-                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
-                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
-                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
-                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
-                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
-                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
-                            </g>
-                        </svg>
-                    </div>
+                    <svg class="segment-display" viewBox="0 0 100 180">
+                        <g id="minute2">
+                            <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                            <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                            <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                            <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                            <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                            <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                            <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                        </g>
+                    </svg>
                 </div>
                 <div class="separator-container">
                     <div class="separator-dot"></div>
                     <div class="separator-dot"></div>
                 </div>
                 <div class="digit-container" id="second1Container">
-                    <div class="digit-wrapper" id="second1Wrapper">
-                        <svg class="segment-display" viewBox="0 0 100 180">
-                            <g id="second1">
-                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
-                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
-                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
-                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
-                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
-                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
-                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
-                            </g>
-                        </svg>
-                    </div>
+                    <svg class="segment-display" viewBox="0 0 100 180">
+                        <g id="second1">
+                            <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                            <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                            <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                            <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                            <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                            <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                            <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                        </g>
+                    </svg>
                 </div>
                 <div class="digit-container" id="second2Container">
-                    <div class="digit-wrapper" id="second2Wrapper">
-                        <svg class="segment-display" viewBox="0 0 100 180">
-                            <g id="second2">
-                                <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
-                                <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
-                                <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
-                                <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
-                                <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
-                                <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
-                                <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
-                            </g>
-                        </svg>
-                    </div>
+                    <svg class="segment-display" viewBox="0 0 100 180">
+                        <g id="second2">
+                            <path class="segment a" d="M25 15 L75 15 L80 20 L70 30 L30 30 L20 20 Z"/>
+                            <path class="segment b" d="M80 25 L90 35 L90 80 L80 90 L70 80 L70 35 Z"/>
+                            <path class="segment c" d="M80 90 L90 100 L90 145 L80 155 L70 145 L70 100 Z"/>
+                            <path class="segment d" d="M25 150 L75 150 L80 155 L70 165 L30 165 L20 155 Z"/>
+                            <path class="segment e" d="M20 90 L30 100 L30 145 L20 155 L10 145 L10 100 Z"/>
+                            <path class="segment f" d="M20 25 L30 35 L30 80 L20 90 L10 80 L10 35 Z"/>
+                            <path class="segment g" d="M25 82.5 L75 82.5 L80 87.5 L75 92.5 L25 92.5 L20 87.5 Z"/>
+                        </g>
+                    </svg>
                 </div>
             </div>
             <div class="date-display" id="digitalDate"></div>
@@ -905,8 +894,9 @@
         let isDarkTheme = true;
         let isAutoTheme = true;
         let isFullscreen = false;
-        let lastTime = { h1: '0', h2: '0', m1: '0', m2: '0', s1: '0', s2: '0' };
+        let lastTime = { h1: '', h2: '', m1: '', m2: '', s1: '', s2: '' };
         let controlPanelTimeout;
+        let isInitialized = false;
 
         // DOM 元素
         const modes = {
@@ -919,24 +909,6 @@
             digital: document.getElementById('digitalBtn'),
             analog: document.getElementById('analogBtn'),
             pendulum: document.getElementById('pendulumBtn')
-        };
-
-        const containers = {
-            h1: document.getElementById('hour1Container'),
-            h2: document.getElementById('hour2Container'),
-            m1: document.getElementById('minute1Container'),
-            m2: document.getElementById('minute2Container'),
-            s1: document.getElementById('second1Container'),
-            s2: document.getElementById('second2Container')
-        };
-
-        const wrappers = {
-            h1: document.getElementById('hour1Wrapper'),
-            h2: document.getElementById('hour2Wrapper'),
-            m1: document.getElementById('minute1Wrapper'),
-            m2: document.getElementById('minute2Wrapper'),
-            s1: document.getElementById('second1Wrapper'),
-            s2: document.getElementById('second2Wrapper')
         };
 
         const themeBtn = document.getElementById('themeBtn');
@@ -954,12 +926,14 @@
             const activeSegments = segmentMap[value] || [];
 
             segments.forEach(segment => {
-                const segmentClass = segment.classList.contains('a') ? 'a' :
-                                     segment.classList.contains('b') ? 'b' :
-                                     segment.classList.contains('c') ? 'c' :
-                                     segment.classList.contains('d') ? 'd' :
-                                     segment.classList.contains('e') ? 'e' :
-                                     segment.classList.contains('f') ? 'f' : 'g';
+                let segmentClass = '';
+                if (segment.classList.contains('a')) segmentClass = 'a';
+                else if (segment.classList.contains('b')) segmentClass = 'b';
+                else if (segment.classList.contains('c')) segmentClass = 'c';
+                else if (segment.classList.contains('d')) segmentClass = 'd';
+                else if (segment.classList.contains('e')) segmentClass = 'e';
+                else if (segment.classList.contains('f')) segmentClass = 'f';
+                else if (segment.classList.contains('g')) segmentClass = 'g';
                 
                 if (activeSegments.includes(segmentClass)) {
                     segment.classList.add('active');
@@ -1014,46 +988,6 @@
             return now.toLocaleDateString('zh-CN', options);
         }
 
-        // 更新单个数字（七段数码管）
-        function updateDigit(key, newValue) {
-            if (newValue === lastTime[key]) return;
-
-            const wrapper = wrappers[key];
-            if (!wrapper) return;
-
-            // 创建新的 wrapper
-            const newWrapper = document.createElement('div');
-            newWrapper.className = 'digit-wrapper entering';
-            newWrapper.id = wrapper.id;
-
-            // 复制 SVG 内容
-            const svgContent = wrapper.innerHTML;
-            newWrapper.innerHTML = svgContent;
-
-            // 旧 wrapper 退出动画
-            wrapper.classList.remove('entering');
-            wrapper.classList.add('exiting');
-
-            // 添加新 wrapper
-            wrapper.parentNode.appendChild(newWrapper);
-
-            // 更新新数字的显示
-            const digitId = wrapper.querySelector('g').id;
-            setDigit(digitId, newValue);
-
-            // 更新 wrappers 引用
-            wrappers[key] = newWrapper;
-
-            // 移除旧 wrapper
-            setTimeout(() => {
-                if (wrapper.parentNode) {
-                    wrapper.parentNode.removeChild(wrapper);
-                }
-            }, 500);
-
-            lastTime[key] = newValue;
-        }
-
         // 更新数字时钟
         function updateDigitalClock() {
             const now = new Date();
@@ -1061,29 +995,51 @@
             const minutes = padZero(now.getMinutes());
             const seconds = padZero(now.getSeconds());
 
-            // 初始化时设置所有数字
-            if (lastTime.h1 === '0' && lastTime.h2 === '0') {
-                setDigit('hour1', hours[0]);
-                setDigit('hour2', hours[1]);
-                setDigit('minute1', minutes[0]);
-                setDigit('minute2', minutes[1]);
-                setDigit('second1', seconds[0]);
-                setDigit('second2', seconds[1]);
-                lastTime = {
-                    h1: hours[0],
-                    h2: hours[1],
-                    m1: minutes[0],
-                    m2: minutes[1],
-                    s1: seconds[0],
-                    s2: seconds[1]
-                };
+            const currentTime = {
+                h1: hours[0],
+                h2: hours[1],
+                m1: minutes[0],
+                m2: minutes[1],
+                s1: seconds[0],
+                s2: seconds[1]
+            };
+
+            // 首次初始化
+            if (!isInitialized) {
+                setDigit('hour1', currentTime.h1);
+                setDigit('hour2', currentTime.h2);
+                setDigit('minute1', currentTime.m1);
+                setDigit('minute2', currentTime.m2);
+                setDigit('second1', currentTime.s1);
+                setDigit('second2', currentTime.s2);
+                lastTime = { ...currentTime };
+                isInitialized = true;
             } else {
-                updateDigit('h1', hours[0]);
-                updateDigit('h2', hours[1]);
-                updateDigit('m1', minutes[0]);
-                updateDigit('m2', minutes[1]);
-                updateDigit('s1', seconds[0]);
-                updateDigit('s2', seconds[1]);
+                // 检查并更新变化的数字
+                if (currentTime.h1 !== lastTime.h1) {
+                    setDigit('hour1', currentTime.h1);
+                    lastTime.h1 = currentTime.h1;
+                }
+                if (currentTime.h2 !== lastTime.h2) {
+                    setDigit('hour2', currentTime.h2);
+                    lastTime.h2 = currentTime.h2;
+                }
+                if (currentTime.m1 !== lastTime.m1) {
+                    setDigit('minute1', currentTime.m1);
+                    lastTime.m1 = currentTime.m1;
+                }
+                if (currentTime.m2 !== lastTime.m2) {
+                    setDigit('minute2', currentTime.m2);
+                    lastTime.m2 = currentTime.m2;
+                }
+                if (currentTime.s1 !== lastTime.s1) {
+                    setDigit('second1', currentTime.s1);
+                    lastTime.s1 = currentTime.s1;
+                }
+                if (currentTime.s2 !== lastTime.s2) {
+                    setDigit('second2', currentTime.s2);
+                    lastTime.s2 = currentTime.s2;
+                }
             }
 
             // 更新日期
