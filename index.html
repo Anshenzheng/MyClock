@@ -23,7 +23,7 @@
             --wood-color: #8B4513;
             --wood-light: #A0522D;
             --wood-dark: #654321;
-            --digit-inactive: #2a2a35;
+            --digit-inactive: #3a3a4a;
             --digit-active: #00d4ff;
         }
 
@@ -36,7 +36,7 @@
             --shadow-color: rgba(0, 102, 204, 0.2);
             --control-bg: rgba(255, 255, 255, 0.9);
             --control-hover: rgba(240, 240, 240, 0.95);
-            --digit-inactive: #c0c0c8;
+            --digit-inactive: #d0d0d8;
             --digit-active: #0066cc;
         }
 
@@ -348,15 +348,15 @@
                     90deg,
                     transparent,
                     transparent 2px,
-                    rgba(139, 69, 19, 0.1) 2px,
-                    rgba(139, 69, 19, 0.1) 4px
+                    rgba(139, 69, 19, 0.3) 2px,
+                    rgba(139, 69, 19, 0.3) 4px
                 ),
                 repeating-linear-gradient(
                     0deg,
                     transparent,
                     transparent 3px,
-                    rgba(101, 67, 33, 0.08) 3px,
-                    rgba(101, 67, 33, 0.08) 6px
+                    rgba(101, 67, 33, 0.25) 3px,
+                    rgba(101, 67, 33, 0.25) 6px
                 ),
                 linear-gradient(135deg, 
                     #D2691E 0%, 
@@ -547,8 +547,8 @@
                     45deg,
                     transparent,
                     transparent 5px,
-                    rgba(139, 69, 19, 0.15) 5px,
-                    rgba(139, 69, 19, 0.15) 10px
+                    rgba(139, 69, 19, 0.35) 5px,
+                    rgba(139, 69, 19, 0.35) 10px
                 ),
                 linear-gradient(135deg, #A0522D, #8B4513, #654321, #8B4513, #A0522D);
             z-index: -1;
@@ -870,7 +870,7 @@
     <div class="control-panel" id="controlPanel">
         <button class="control-btn active" id="digitalBtn" title="数字模式">🔢</button>
         <button class="control-btn" id="analogBtn" title="扫秒模式">⚙️</button>
-        <button class="control-btn" id="pendulumBtn" title="摆钟模式">🔔</button>
+        <button class="control-btn" id="pendulumBtn" title="摆钟模式">�️</button>
         <button class="control-btn" id="fullscreenBtn" title="全屏">⛶</button>
     </div>
 
@@ -1112,17 +1112,35 @@
             }, 150);
         }
 
-        // 切换主题
+        // 切换主题 - 循环切换：深色 -> 浅色 -> 自动 -> 深色
         function toggleTheme() {
-            isAutoTheme = false;
-            autoIndicator.style.display = 'none';
-            isDarkTheme = !isDarkTheme;
+            if (isAutoTheme) {
+                // 当前是自动模式，切换到深色
+                isAutoTheme = false;
+                isDarkTheme = true;
+                autoIndicator.style.display = 'none';
+            } else if (isDarkTheme) {
+                // 当前是深色，切换到浅色
+                isDarkTheme = false;
+            } else {
+                // 当前是浅色，切换到自动
+                isAutoTheme = true;
+                autoIndicator.style.display = 'flex';
+                checkAutoTheme(); // 立即检查一次
+            }
             applyTheme();
         }
 
         // 应用主题
         function applyTheme() {
-            if (isDarkTheme) {
+            if (isAutoTheme) {
+                themeBtn.textContent = '🔄';
+                if (isDarkTheme) {
+                    document.body.classList.remove('light-theme');
+                } else {
+                    document.body.classList.add('light-theme');
+                }
+            } else if (isDarkTheme) {
                 document.body.classList.remove('light-theme');
                 themeBtn.textContent = '🌙';
             } else {
