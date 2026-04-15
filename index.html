@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级感时钟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #0a0a0f;
+            --text-color: #ffffff;
+            --accent-color: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.6);
+            --shadow-color: rgba(0, 212, 255, 0.3);
+            --control-bg: rgba(20, 20, 30, 0.8);
+            --control-hover: rgba(40, 40, 60, 0.9);
+            --wood-color: #8B4513;
+            --wood-light: #A0522D;
+            --wood-dark: #654321;
+        }
+
+        .light-theme {
+            --bg-color: #f5f5f5;
+            --text-color: #1a1a1a;
+            --accent-color: #0066cc;
+            --accent-glow: rgba(0, 102, 204, 0.4);
+            --shadow-color: rgba(0, 102, 204, 0.2);
+            --control-bg: rgba(255, 255, 255, 0.9);
+            --control-hover: rgba(240, 240, 240, 0.95);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .clock-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clock-mode {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease, filter 0.3s ease;
+            filter: blur(10px);
+        }
+
+        .clock-mode.active {
+            opacity: 1;
+            visibility: visible;
+            filter: blur(0);
+        }
+
+        .clock-mode.hiding {
+            filter: blur(10px);
+        }
+
+        /* 数字显示模式样式 */
+        .digital-clock {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .digit-container {
+            position: relative;
+            width: 120px;
+            height: 200px;
+            perspective: 1000px;
+        }
+
+        .digit {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            font-size: 180px;
+            font-weight: 300;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--accent-color);
+            text-shadow: 
+                0 0 10px var(--accent-glow),
+                0 0 20px var(--accent-glow),
+                0 0 40px var(--accent-glow),
+                0 0 80px var(--accent-color);
+            font-family: 'Courier New', monospace;
+            letter-spacing: -10px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .digit.entering {
+            animation: liquidEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .digit.exiting {
+            animation: liquidExit 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes liquidEnter {
+            0% {
+                transform: scaleX(0) scaleY(0.5);
+                opacity: 0;
+                filter: blur(20px);
+            }
+            30% {
+                transform: scaleX(1.3) scaleY(0.7);
+                opacity: 0.8;
+                filter: blur(10px);
+            }
+            60% {
+                transform: scaleX(0.9) scaleY(1.1);
+                opacity: 1;
+                filter: blur(5px);
+            }
+            80% {
+                transform: scaleX(1.05) scaleY(0.95);
+                filter: blur(2px);
+            }
+            100% {
+                transform: scaleX(1) scaleY(1);
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        @keyframes liquidExit {
+            0% {
+                transform: scaleX(1) scaleY(1);
+                opacity: 1;
+                filter: blur(0);
+            }
+            20% {
+                transform: scaleX(1.1) scaleY(0.9);
+                opacity: 0.8;
+                filter: blur(3px);
+            }
+            50% {
+                transform: scaleX(0.8) scaleY(1.2);
+                opacity: 0.5;
+                filter: blur(8px);
+            }
+            100% {
+                transform: scaleX(0) scaleY(0.3);
+                opacity: 0;
+                filter: blur(20px);
+            }
+        }
+
+        .separator {
+            font-size: 120px;
+            color: var(--accent-color);
+            text-shadow: 
+                0 0 10px var(--accent-glow),
+                0 0 20px var(--accent-glow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 极简扫秒模式样式 */
+        .analog-clock {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            box-shadow: 
+                0 0 60px var(--shadow-color),
+                inset 0 0 60px var(--shadow-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .analog-clock::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .clock-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hour-mark {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 300;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .hour-mark.roman {
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--accent-color);
+            opacity: 1;
+        }
+
+        .clock-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+        }
+
+        .hour-hand {
+            width: 8px;
+            height: 100px;
+            background: var(--text-color);
+            margin-left: -4px;
+            z-index: 3;
+            box-shadow: 0 0 10px var(--shadow-color);
+        }
+
+        .minute-hand {
+            width: 5px;
+            height: 140px;
+            background: var(--text-color);
+            margin-left: -2.5px;
+            z-index: 4;
+            opacity: 0.9;
+            box-shadow: 0 0 8px var(--shadow-color);
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 160px;
+            background: var(--accent-color);
+            margin-left: -1px;
+            z-index: 5;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* 机械摆钟模式样式 */
+        .pendulum-clock {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pendulum-analog {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--wood-light) 0%, var(--wood-color) 50%, var(--wood-dark) 100%);
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            border: 8px solid var(--wood-dark);
+        }
+
+        .pendulum-analog::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: #d4af37;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .pendulum-clock-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #f5f0e6 0%, #e8e0d0 100%);
+            border-radius: 50%;
+            margin: 15px;
+            width: calc(100% - 30px);
+            height: calc(100% - 30px);
+        }
+
+        .pendulum-hour-mark {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 400;
+            color: #333;
+            font-family: 'Georgia', serif;
+        }
+
+        .pendulum-hour-mark.roman {
+            font-size: 24px;
+            font-weight: 600;
+            color: #8B4513;
+        }
+
+        .pendulum-clock-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+        }
+
+        .pendulum-hour-hand {
+            width: 7px;
+            height: 80px;
+            background: linear-gradient(to top, #8B4513, #654321);
+            margin-left: -3.5px;
+            z-index: 3;
+        }
+
+        .pendulum-minute-hand {
+            width: 4px;
+            height: 110px;
+            background: linear-gradient(to top, #654321, #3d2817);
+            margin-left: -2px;
+            z-index: 4;
+        }
+
+        .pendulum-second-hand {
+            width: 2px;
+            height: 130px;
+            background: #d4af37;
+            margin-left: -1px;
+            z-index: 5;
+        }
+
+        /* 钟摆样式 */
+        .pendulum-container {
+            position: relative;
+            width: 100px;
+            height: 250px;
+            margin-top: -20px;
+        }
+
+        .pendulum {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 4px;
+            height: 200px;
+            background: linear-gradient(to bottom, #d4af37, #8B4513);
+            transform-origin: top center;
+            margin-left: -2px;
+            z-index: 1;
+        }
+
+        .pendulum-bob {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #d4af37, #8B4513);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.4),
+                inset 0 -5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .pendulum-support {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #d4af37;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 控制面板样式 */
+        .control-panel {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            padding: 15px 25px;
+            background: var(--control-bg);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 100;
+        }
+
+        .control-panel.hidden {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            pointer-events: none;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .control-btn:hover {
+            background: var(--control-hover);
+            transform: scale(1.1);
+        }
+
+        .control-btn.active {
+            color: var(--accent-color);
+            background: var(--control-hover);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .control-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .theme-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: var(--control-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 30px var(--shadow-color);
+        }
+
+        /* 自动模式指示器 */
+        .auto-indicator {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            padding: 10px 20px;
+            background: var(--control-bg);
+            border-radius: 25px;
+            font-size: 14px;
+            color: var(--text-color);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auto-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* 日期显示 */
+        .date-display {
+            position: absolute;
+            bottom: 80px;
+            font-size: 18px;
+            color: var(--text-color);
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .digit-container {
+                width: 80px;
+                height: 140px;
+            }
+
+            .digit {
+                font-size: 120px;
+            }
+
+            .separator {
+                font-size: 80px;
+            }
+
+            .analog-clock {
+                width: 300px;
+                height: 300px;
+            }
+
+            .pendulum-analog {
+                width: 280px;
+                height: 280px;
+            }
+
+            .control-panel {
+                padding: 10px 15px;
+                gap: 10px;
+            }
+
+            .control-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auto-indicator" id="autoIndicator">
+        <div class="dot"></div>
+        <span>Auto 模式</span>
+    </div>
+
+    <div class="theme-toggle">
+        <button class="theme-btn" id="themeBtn" title="切换主题">🌙</button>
+    </div>
+
+    <div class="clock-container">
+        <!-- 数字显示模式 -->
+        <div class="clock-mode active" id="digitalMode">
+            <div class="digital-clock">
+                <div class="digit-container">
+                    <div class="digit" id="hour1">0</div>
+                </div>
+                <div class="digit-container">
+                    <div class="digit" id="hour2">0</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="digit-container">
+                    <div class="digit" id="minute1">0</div>
+                </div>
+                <div class="digit-container">
+                    <div class="digit" id="minute2">0</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="digit-container">
+                    <div class="digit" id="second1">0</div>
+                </div>
+                <div class="digit-container">
+                    <div class="digit" id="second2">0</div>
+                </div>
+            </div>
+            <div class="date-display" id="digitalDate"></div>
+        </div>
+
+        <!-- 极简扫秒模式 -->
+        <div class="clock-mode" id="analogMode">
+            <div class="analog-clock">
+                <div class="clock-face" id="analogFace"></div>
+                <div class="clock-hand hour-hand" id="analogHour"></div>
+                <div class="clock-hand minute-hand" id="analogMinute"></div>
+                <div class="clock-hand second-hand" id="analogSecond"></div>
+            </div>
+            <div class="date-display" id="analogDate"></div>
+        </div>
+
+        <!-- 机械摆钟模式 -->
+        <div class="clock-mode" id="pendulumMode">
+            <div class="pendulum-clock">
+                <div class="pendulum-analog">
+                    <div class="pendulum-clock-face" id="pendulumFace"></div>
+                    <div class="pendulum-clock-hand pendulum-hour-hand" id="pendulumHour"></div>
+                    <div class="pendulum-clock-hand pendulum-minute-hand" id="pendulumMinute"></div>
+                    <div class="pendulum-clock-hand pendulum-second-hand" id="pendulumSecond"></div>
+                </div>
+                <div class="pendulum-container">
+                    <div class="pendulum-support"></div>
+                    <div class="pendulum" id="pendulum">
+                        <div class="pendulum-bob"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="date-display" id="pendulumDate"></div>
+        </div>
+    </div>
+
+    <div class="control-panel" id="controlPanel">
+        <button class="control-btn active" id="digitalBtn" title="数字模式">🔢</button>
+        <button class="control-btn" id="analogBtn" title="扫秒模式">⚙️</button>
+        <button class="control-btn" id="pendulumBtn" title="摆钟模式">🔔</button>
+        <button class="control-btn" id="fullscreenBtn" title="全屏">⛶</button>
+    </div>
+
+    <script>
+        // 状态管理
+        let currentMode = 'digital';
+        let isDarkTheme = true;
+        let isAutoTheme = true;
+        let isFullscreen = false;
+        let lastTime = { h1: '0', h2: '0', m1: '0', m2: '0', s1: '0', s2: '0' };
+        let pendulumAngle = 0;
+        let pendulumDirection = 1;
+        let controlPanelTimeout;
+
+        // DOM 元素
+        const modes = {
+            digital: document.getElementById('digitalMode'),
+            analog: document.getElementById('analogMode'),
+            pendulum: document.getElementById('pendulumMode')
+        };
+
+        const buttons = {
+            digital: document.getElementById('digitalBtn'),
+            analog: document.getElementById('analogBtn'),
+            pendulum: document.getElementById('pendulumBtn')
+        };
+
+        const themeBtn = document.getElementById('themeBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const controlPanel = document.getElementById('controlPanel');
+        const autoIndicator = document.getElementById('autoIndicator');
+        const pendulum = document.getElementById('pendulum');
+
+        // 初始化表盘刻度
+        function initClockFaces() {
+            const romanNumerals = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
+            const arabicNumerals = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+
+            // 极简扫秒模式表盘
+            const analogFace = document.getElementById('analogFace');
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30 - 90) * (Math.PI / 180);
+                const radius = 160;
+                const x = 200 + radius * Math.cos(angle);
+                const y = 200 + radius * Math.sin(angle);
+
+                const mark = document.createElement('div');
+                mark.className = `hour-mark ${i === 0 ? 'roman' : ''}`;
+                mark.textContent = i === 0 ? romanNumerals[i] : arabicNumerals[i];
+                mark.style.position = 'absolute';
+                mark.style.left = `${x}px`;
+                mark.style.top = `${y}px`;
+                mark.style.transform = 'translate(-50%, -50%)';
+                analogFace.appendChild(mark);
+            }
+
+            // 机械摆钟模式表盘
+            const pendulumFace = document.getElementById('pendulumFace');
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * 30 - 90) * (Math.PI / 180);
+                const radius = 130;
+                const x = 160 + radius * Math.cos(angle);
+                const y = 160 + radius * Math.sin(angle);
+
+                const mark = document.createElement('div');
+                mark.className = `pendulum-hour-mark ${i === 0 ? 'roman' : ''}`;
+                mark.textContent = i === 0 ? romanNumerals[i] : arabicNumerals[i];
+                mark.style.position = 'absolute';
+                mark.style.left = `${x}px`;
+                mark.style.top = `${y}px`;
+                mark.style.transform = 'translate(-50%, -50%)';
+                pendulumFace.appendChild(mark);
+            }
+        }
+
+        // 格式化数字为两位
+        function padZero(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        // 获取日期字符串
+        function getDateString() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                weekday: 'long' 
+            };
+            return now.toLocaleDateString('zh-CN', options);
+        }
+
+        // 更新数字时钟
+        function updateDigitalClock() {
+            const now = new Date();
+            const hours = padZero(now.getHours());
+            const minutes = padZero(now.getMinutes());
+            const seconds = padZero(now.getSeconds());
+
+            const currentTime = {
+                h1: hours[0],
+                h2: hours[1],
+                m1: minutes[0],
+                m2: minutes[1],
+                s1: seconds[0],
+                s2: seconds[1]
+            };
+
+            const digitIds = ['hour1', 'hour2', 'minute1', 'minute2', 'second1', 'second2'];
+            const timeKeys = ['h1', 'h2', 'm1', 'm2', 's1', 's2'];
+
+            digitIds.forEach((id, index) => {
+                const element = document.getElementById(id);
+                const key = timeKeys[index];
+                
+                if (currentTime[key] !== lastTime[key]) {
+                    // 创建新数字元素
+                    const newDigit = document.createElement('div');
+                    newDigit.className = 'digit entering';
+                    newDigit.textContent = currentTime[key];
+                    
+                    // 旧数字退出动画
+                    element.classList.remove('entering');
+                    element.classList.add('exiting');
+                    
+                    // 添加新数字
+                    element.parentNode.appendChild(newDigit);
+                    
+                    // 移除旧数字
+                    setTimeout(() => {
+                        element.parentNode.removeChild(element);
+                    }, 600);
+                    
+                    lastTime[key] = currentTime[key];
+                }
+            });
+
+            // 更新日期
+            document.getElementById('digitalDate').textContent = getDateString();
+        }
+
+        // 更新模拟时钟
+        function updateAnalogClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const milliseconds = now.getMilliseconds();
+
+            // 平滑计算角度
+            const secondAngle = (seconds + milliseconds / 1000) * 6;
+            const minuteAngle = (minutes + seconds / 60) * 6;
+            const hourAngle = ((hours % 12) + minutes / 60) * 30;
+
+            // 极简扫秒模式
+            document.getElementById('analogSecond').style.transform = `rotate(${secondAngle}deg)`;
+            document.getElementById('analogMinute').style.transform = `rotate(${minuteAngle}deg)`;
+            document.getElementById('analogHour').style.transform = `rotate(${hourAngle}deg)`;
+
+            // 机械摆钟模式
+            document.getElementById('pendulumSecond').style.transform = `rotate(${secondAngle}deg)`;
+            document.getElementById('pendulumMinute').style.transform = `rotate(${minuteAngle}deg)`;
+            document.getElementById('pendulumHour').style.transform = `rotate(${hourAngle}deg)`;
+
+            // 更新日期
+            document.getElementById('analogDate').textContent = getDateString();
+            document.getElementById('pendulumDate').textContent = getDateString();
+        }
+
+        // 更新钟摆动画（物理摆动效果）
+        function updatePendulum() {
+            // 物理摆动公式：角度随时间变化，两端慢，中间快
+            // 使用正弦函数模拟简谐运动
+            const time = Date.now() / 1000;
+            const maxAngle = 30; // 最大摆动角度
+            const period = 2; // 摆动周期（秒）
+            
+            // 简谐运动公式：θ = θ_max * sin(2πt / T)
+            const angle = maxAngle * Math.sin(2 * Math.PI * time / period);
+            
+            pendulum.style.transform = `rotate(${angle}deg)`;
+        }
+
+        // 切换模式
+        function switchMode(mode) {
+            if (currentMode === mode) return;
+
+            // 隐藏当前模式
+            modes[currentMode].classList.add('hiding');
+            buttons[currentMode].classList.remove('active');
+
+            setTimeout(() => {
+                modes[currentMode].classList.remove('active', 'hiding');
+                
+                // 显示新模式
+                modes[mode].classList.add('active');
+                buttons[mode].classList.add('active');
+                
+                currentMode = mode;
+            }, 150);
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            isAutoTheme = false;
+            autoIndicator.style.display = 'none';
+            isDarkTheme = !isDarkTheme;
+            applyTheme();
+        }
+
+        // 应用主题
+        function applyTheme() {
+            if (isDarkTheme) {
+                document.body.classList.remove('light-theme');
+                themeBtn.textContent = '🌙';
+            } else {
+                document.body.classList.add('light-theme');
+                themeBtn.textContent = '☀️';
+            }
+        }
+
+        // 自动主题切换
+        function checkAutoTheme() {
+            if (!isAutoTheme) return;
+
+            const now = new Date();
+            const hours = now.getHours();
+            
+            // 白天：6:00 - 18:00 使用浅色主题
+            // 晚上：18:00 - 6:00 使用深色主题
+            const shouldBeDark = hours < 6 || hours >= 18;
+            
+            if (shouldBeDark !== isDarkTheme) {
+                isDarkTheme = shouldBeDark;
+                applyTheme();
+            }
+        }
+
+        // 切换全屏
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('全屏请求失败:', err);
+                });
+                isFullscreen = true;
+                fullscreenBtn.textContent = '⛶';
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                isFullscreen = false;
+                fullscreenBtn.textContent = '⛶';
+            }
+        }
+
+        // 显示控制面板
+        function showControlPanel() {
+            controlPanel.classList.remove('hidden');
+            clearTimeout(controlPanelTimeout);
+            
+            // 3秒后自动隐藏
+            controlPanelTimeout = setTimeout(() => {
+                controlPanel.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 事件监听
+        buttons.digital.addEventListener('click', () => switchMode('digital'));
+        buttons.analog.addEventListener('click', () => switchMode('analog'));
+        buttons.pendulum.addEventListener('click', () => switchMode('pendulum'));
+        themeBtn.addEventListener('click', toggleTheme);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        // 鼠标移动显示控制面板
+        document.addEventListener('mousemove', showControlPanel);
+        document.addEventListener('touchstart', showControlPanel);
+
+        // 全屏变化监听
+        document.addEventListener('fullscreenchange', () => {
+            isFullscreen = !!document.fullscreenElement;
+        });
+
+        // 动画循环
+        function animate() {
+            updateDigitalClock();
+            updateAnalogClock();
+            updatePendulum();
+            checkAutoTheme();
+            requestAnimationFrame(animate);
+        }
+
+        // 初始化
+        initClockFaces();
+        applyTheme();
+        showControlPanel(); // 初始显示
+        animate();
+
+        // 每分钟检查一次主题
+        setInterval(checkAutoTheme, 60000);
+    </script>
+</body>
+</html>
