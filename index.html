@@ -227,11 +227,22 @@
             font-weight: 300;
             color: var(--text-color);
             opacity: 0.8;
+            transform-origin: center center;
+        }
+
+        .hour-mark span {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .hour-mark.roman {
             font-size: 28px;
             font-weight: 400;
+        }
+
+        .hour-mark.roman span {
             color: var(--accent-color);
             opacity: 1;
         }
@@ -308,13 +319,12 @@
 
         .pendulum-clock-face {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, #f5f0e6 0%, #e8e0d0 100%);
-            border-radius: 50%;
-            margin: 15px;
             width: calc(100% - 30px);
             height: calc(100% - 30px);
+            background: radial-gradient(circle, #f5f0e6 0%, #e8e0d0 100%);
+            border-radius: 50%;
+            top: 15px;
+            left: 15px;
         }
 
         .pendulum-hour-mark {
@@ -326,11 +336,22 @@
             font-weight: 400;
             color: #333;
             font-family: 'Georgia', serif;
+            transform-origin: center center;
+        }
+
+        .pendulum-hour-mark span {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .pendulum-hour-mark.roman {
             font-size: 24px;
             font-weight: 600;
+        }
+
+        .pendulum-hour-mark.roman span {
             color: #8B4513;
         }
 
@@ -599,24 +620,24 @@
         <!-- 数字显示模式 -->
         <div class="clock-mode active" id="digitalMode">
             <div class="digital-clock">
-                <div class="digit-container">
+                <div class="digit-container" id="hour1Container">
                     <div class="digit" id="hour1">0</div>
                 </div>
-                <div class="digit-container">
+                <div class="digit-container" id="hour2Container">
                     <div class="digit" id="hour2">0</div>
                 </div>
                 <div class="separator">:</div>
-                <div class="digit-container">
+                <div class="digit-container" id="minute1Container">
                     <div class="digit" id="minute1">0</div>
                 </div>
-                <div class="digit-container">
+                <div class="digit-container" id="minute2Container">
                     <div class="digit" id="minute2">0</div>
                 </div>
                 <div class="separator">:</div>
-                <div class="digit-container">
+                <div class="digit-container" id="second1Container">
                     <div class="digit" id="second1">0</div>
                 </div>
-                <div class="digit-container">
+                <div class="digit-container" id="second2Container">
                     <div class="digit" id="second2">0</div>
                 </div>
             </div>
@@ -668,8 +689,6 @@
         let isAutoTheme = true;
         let isFullscreen = false;
         let lastTime = { h1: '0', h2: '0', m1: '0', m2: '0', s1: '0', s2: '0' };
-        let pendulumAngle = 0;
-        let pendulumDirection = 1;
         let controlPanelTimeout;
 
         // DOM 元素
@@ -685,50 +704,45 @@
             pendulum: document.getElementById('pendulumBtn')
         };
 
+        const containers = {
+            h1: document.getElementById('hour1Container'),
+            h2: document.getElementById('hour2Container'),
+            m1: document.getElementById('minute1Container'),
+            m2: document.getElementById('minute2Container'),
+            s1: document.getElementById('second1Container'),
+            s2: document.getElementById('second2Container')
+        };
+
         const themeBtn = document.getElementById('themeBtn');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const controlPanel = document.getElementById('controlPanel');
         const autoIndicator = document.getElementById('autoIndicator');
-        const pendulum = document.getElementById('pendulum');
+        const pendulumEl = document.getElementById('pendulum');
 
         // 初始化表盘刻度
         function initClockFaces() {
             const romanNumerals = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
             const arabicNumerals = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
 
-            // 极简扫秒模式表盘
+            // 极简扫秒模式表盘 - 使用 CSS transform 旋转
             const analogFace = document.getElementById('analogFace');
             for (let i = 0; i < 12; i++) {
-                const angle = (i * 30 - 90) * (Math.PI / 180);
-                const radius = 160;
-                const x = 200 + radius * Math.cos(angle);
-                const y = 200 + radius * Math.sin(angle);
-
+                const angle = i * 30;
                 const mark = document.createElement('div');
                 mark.className = `hour-mark ${i === 0 ? 'roman' : ''}`;
-                mark.textContent = i === 0 ? romanNumerals[i] : arabicNumerals[i];
-                mark.style.position = 'absolute';
-                mark.style.left = `${x}px`;
-                mark.style.top = `${y}px`;
-                mark.style.transform = 'translate(-50%, -50%)';
+                mark.innerHTML = `<span>${i === 0 ? romanNumerals[i] : arabicNumerals[i]}</span>`;
+                mark.style.transform = `rotate(${angle}deg)`;
                 analogFace.appendChild(mark);
             }
 
             // 机械摆钟模式表盘
             const pendulumFace = document.getElementById('pendulumFace');
             for (let i = 0; i < 12; i++) {
-                const angle = (i * 30 - 90) * (Math.PI / 180);
-                const radius = 130;
-                const x = 160 + radius * Math.cos(angle);
-                const y = 160 + radius * Math.sin(angle);
-
+                const angle = i * 30;
                 const mark = document.createElement('div');
                 mark.className = `pendulum-hour-mark ${i === 0 ? 'roman' : ''}`;
-                mark.textContent = i === 0 ? romanNumerals[i] : arabicNumerals[i];
-                mark.style.position = 'absolute';
-                mark.style.left = `${x}px`;
-                mark.style.top = `${y}px`;
-                mark.style.transform = 'translate(-50%, -50%)';
+                mark.innerHTML = `<span>${i === 0 ? romanNumerals[i] : arabicNumerals[i]}</span>`;
+                mark.style.transform = `rotate(${angle}deg)`;
                 pendulumFace.appendChild(mark);
             }
         }
@@ -750,6 +764,38 @@
             return now.toLocaleDateString('zh-CN', options);
         }
 
+        // 更新单个数字
+        function updateDigit(container, key, newValue) {
+            if (newValue === lastTime[key]) return;
+
+            // 获取当前数字元素
+            const currentDigit = container.querySelector('.digit:not(.exiting)');
+            
+            if (currentDigit) {
+                // 创建新数字元素
+                const newDigit = document.createElement('div');
+                newDigit.className = 'digit entering';
+                newDigit.textContent = newValue;
+                newDigit.id = currentDigit.id;
+
+                // 旧数字退出动画
+                currentDigit.classList.remove('entering');
+                currentDigit.classList.add('exiting');
+
+                // 添加新数字
+                container.appendChild(newDigit);
+
+                // 移除旧数字
+                setTimeout(() => {
+                    if (currentDigit.parentNode) {
+                        currentDigit.parentNode.removeChild(currentDigit);
+                    }
+                }, 600);
+            }
+
+            lastTime[key] = newValue;
+        }
+
         // 更新数字时钟
         function updateDigitalClock() {
             const now = new Date();
@@ -757,43 +803,12 @@
             const minutes = padZero(now.getMinutes());
             const seconds = padZero(now.getSeconds());
 
-            const currentTime = {
-                h1: hours[0],
-                h2: hours[1],
-                m1: minutes[0],
-                m2: minutes[1],
-                s1: seconds[0],
-                s2: seconds[1]
-            };
-
-            const digitIds = ['hour1', 'hour2', 'minute1', 'minute2', 'second1', 'second2'];
-            const timeKeys = ['h1', 'h2', 'm1', 'm2', 's1', 's2'];
-
-            digitIds.forEach((id, index) => {
-                const element = document.getElementById(id);
-                const key = timeKeys[index];
-                
-                if (currentTime[key] !== lastTime[key]) {
-                    // 创建新数字元素
-                    const newDigit = document.createElement('div');
-                    newDigit.className = 'digit entering';
-                    newDigit.textContent = currentTime[key];
-                    
-                    // 旧数字退出动画
-                    element.classList.remove('entering');
-                    element.classList.add('exiting');
-                    
-                    // 添加新数字
-                    element.parentNode.appendChild(newDigit);
-                    
-                    // 移除旧数字
-                    setTimeout(() => {
-                        element.parentNode.removeChild(element);
-                    }, 600);
-                    
-                    lastTime[key] = currentTime[key];
-                }
-            });
+            updateDigit(containers.h1, 'h1', hours[0]);
+            updateDigit(containers.h2, 'h2', hours[1]);
+            updateDigit(containers.m1, 'm1', minutes[0]);
+            updateDigit(containers.m2, 'm2', minutes[1]);
+            updateDigit(containers.s1, 's1', seconds[0]);
+            updateDigit(containers.s2, 's2', seconds[1]);
 
             // 更新日期
             document.getElementById('digitalDate').textContent = getDateString();
@@ -813,14 +828,22 @@
             const hourAngle = ((hours % 12) + minutes / 60) * 30;
 
             // 极简扫秒模式
-            document.getElementById('analogSecond').style.transform = `rotate(${secondAngle}deg)`;
-            document.getElementById('analogMinute').style.transform = `rotate(${minuteAngle}deg)`;
-            document.getElementById('analogHour').style.transform = `rotate(${hourAngle}deg)`;
+            const analogSecond = document.getElementById('analogSecond');
+            const analogMinute = document.getElementById('analogMinute');
+            const analogHour = document.getElementById('analogHour');
+            
+            if (analogSecond) analogSecond.style.transform = `rotate(${secondAngle}deg)`;
+            if (analogMinute) analogMinute.style.transform = `rotate(${minuteAngle}deg)`;
+            if (analogHour) analogHour.style.transform = `rotate(${hourAngle}deg)`;
 
             // 机械摆钟模式
-            document.getElementById('pendulumSecond').style.transform = `rotate(${secondAngle}deg)`;
-            document.getElementById('pendulumMinute').style.transform = `rotate(${minuteAngle}deg)`;
-            document.getElementById('pendulumHour').style.transform = `rotate(${hourAngle}deg)`;
+            const pendulumSecond = document.getElementById('pendulumSecond');
+            const pendulumMinute = document.getElementById('pendulumMinute');
+            const pendulumHour = document.getElementById('pendulumHour');
+            
+            if (pendulumSecond) pendulumSecond.style.transform = `rotate(${secondAngle}deg)`;
+            if (pendulumMinute) pendulumMinute.style.transform = `rotate(${minuteAngle}deg)`;
+            if (pendulumHour) pendulumHour.style.transform = `rotate(${hourAngle}deg)`;
 
             // 更新日期
             document.getElementById('analogDate').textContent = getDateString();
@@ -829,6 +852,8 @@
 
         // 更新钟摆动画（物理摆动效果）
         function updatePendulum() {
+            if (!pendulumEl) return;
+            
             // 物理摆动公式：角度随时间变化，两端慢，中间快
             // 使用正弦函数模拟简谐运动
             const time = Date.now() / 1000;
@@ -838,7 +863,7 @@
             // 简谐运动公式：θ = θ_max * sin(2πt / T)
             const angle = maxAngle * Math.sin(2 * Math.PI * time / period);
             
-            pendulum.style.transform = `rotate(${angle}deg)`;
+            pendulumEl.style.transform = `rotate(${angle}deg)`;
         }
 
         // 切换模式
@@ -903,13 +928,11 @@
                     console.log('全屏请求失败:', err);
                 });
                 isFullscreen = true;
-                fullscreenBtn.textContent = '⛶';
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 }
                 isFullscreen = false;
-                fullscreenBtn.textContent = '⛶';
             }
         }
 
@@ -942,18 +965,24 @@
 
         // 动画循环
         function animate() {
-            updateDigitalClock();
-            updateAnalogClock();
-            updatePendulum();
-            checkAutoTheme();
+            try {
+                updateDigitalClock();
+                updateAnalogClock();
+                updatePendulum();
+                checkAutoTheme();
+            } catch (e) {
+                console.error('Animation error:', e);
+            }
             requestAnimationFrame(animate);
         }
 
         // 初始化
         initClockFaces();
         applyTheme();
-        showControlPanel(); // 初始显示
-        animate();
+        showControlPanel();
+        
+        // 启动动画循环
+        requestAnimationFrame(animate);
 
         // 每分钟检查一次主题
         setInterval(checkAutoTheme, 60000);
